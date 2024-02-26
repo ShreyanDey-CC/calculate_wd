@@ -6,6 +6,10 @@
     <title>WFO Days</title>
 </head>
 <body>
+    <input type="text" id="ip" placeholder="Set Your IP">
+    <button id="submit">Add Ip</button>
+    <p style="display: none;" id="showipmsg"></p>
+    <br><br>
     Days:
     <br>
     <div id="other_days"></div>
@@ -16,6 +20,12 @@
 
         if(localStorage.getItem('ip_address_office')){
             const ip_address_office = localStorage.getItem('ip_address_office');
+
+            $('#other_days').html('');
+            $('#ip').hide();
+            $('#submit').hide();
+            $('#showipmsg').show().text('Your IP is set, Refresh to see the working days');
+
 
             const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -38,10 +48,10 @@
                 url: "https://api.ipify.org/?format=json",
                 method: "GET",
                 success: function(response){
-                    if(response.ip == ip_address_home){
-                        dayDetailsObject.type = 'WFH';
-                    }else{
+                    if(response.ip == ip_address_office){
                         dayDetailsObject.type = 'WFO';
+                    }else{
+                        dayDetailsObject.type = 'WFH';
                     }
                     
                     if(localStorage.getItem('all_days_calculation')){
@@ -66,7 +76,11 @@
             console.log(JSON.parse(localStorage.getItem('all_days_calculation')));
         }
         else{
-            $('other_days').html('Your ip is not set yet!');
+            $('#other_days').html('Your ip is not set yet!');
+            $('#submit').click(function(){
+                localStorage.setItem('ip_address_office', $('#ip').val());
+            })
+            window.location.reload();
         }
     });
 </script>
