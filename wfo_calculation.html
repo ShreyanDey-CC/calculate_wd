@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WFO Days</title>
+</head>
+<body>
+    Days:
+    <br>
+    <div id="other_days"></div>
+</body>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+    $(document).ready(function(){
+
+        if(localStorage.getItem('ip_address_office')){
+            const ip_address_office = localStorage.getItem('ip_address_office');
+
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+            const dateObj = new Date();
+
+            var dayDetailsObject = {
+                'date': dateObj.toLocaleDateString(),
+                'type': '',
+                'day': days[dateObj.getDay()],
+                'logged_in_time': dateObj.toLocaleTimeString()
+            }
+
+            const today = dateObj.toLocaleDateString()
+
+            var all_days_array = [];
+
+            var today_already_added = false;
+
+            $.ajax({
+                url: "https://api.ipify.org/?format=json",
+                method: "GET",
+                success: function(response){
+                    if(response.ip == ip_address_home){
+                        dayDetailsObject.type = 'WFH';
+                    }else{
+                        dayDetailsObject.type = 'WFO';
+                    }
+                    
+                    if(localStorage.getItem('all_days_calculation')){
+                        all_days_array = JSON.parse(localStorage.getItem('all_days_calculation'));
+                    
+                        all_days_array.forEach((ada,key)=>{
+                            if(ada.date == today){
+                                today_already_added = true;
+                            }
+                            $('#other_days').append('<p>'+ ada.date + '('+ ada.day +') : ' + ada.type + '('+ada.logged_in_time+')</p>');
+                        })
+                    }
+
+
+                    if(!today_already_added){
+                        all_days_array.push(dayDetailsObject);
+                        localStorage.setItem('all_days_calculation', JSON.stringify(all_days_array));
+                    }
+                }
+            })
+
+            console.log(JSON.parse(localStorage.getItem('all_days_calculation')));
+        }
+    });
+</script>
+</html>
