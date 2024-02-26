@@ -79,8 +79,8 @@
             $('#other_days').html('Your ip is not set yet!');
             $('#submit').click(function(){
                 localStorage.setItem('ip_address_office', $('#ip').val());
+                window.location.reload();
             })
-            window.location.reload();
         }
     });
 </script>
