@@ -6,9 +6,25 @@
     <title>WFO Days</title>
 </head>
 <body>
-    <input type="text" id="ip" placeholder="Set Your IP">
+
+    <button id="remove_data">Remove all data</button>
+    
+    <br><br>
+    <hr>
+    
+    <input type="text" id="ip" placeholder="Set Your home IP">
     <button id="submit">Add Ip</button>
     <p style="display: none;" id="showipmsg"></p>
+
+    <button id="show_update_ip">Update Ip</button>
+    <div id="show_update" style="display: none;">
+        <input type="text" id="update_ip" placeholder="Set your home IP">
+        <button id="update">Update</button>
+    </div>
+    <hr>
+
+    <br><br>
+    <button id="remove_days_data">Remove Days data</button>
     <br><br>
     Days:
     <br>
@@ -18,13 +34,38 @@
 <script>
     $(document).ready(function(){
 
-        if(localStorage.getItem('ip_address_office')){
-            const ip_address_office = localStorage.getItem('ip_address_office');
+        $('#show_update_ip').click(function(){
+            $('#show_update').toggle();
+        })
+
+        if(localStorage.getItem('ip_address_home')){
+            const ip_address_home = localStorage.getItem('ip_address_home');
 
             $('#other_days').html('');
             $('#ip').hide();
             $('#submit').hide();
             $('#showipmsg').show().text('Your IP is set, Refresh to see the working days');
+
+            $('#remove_data').click(function(){
+                localStorage.removeItem('ip_address_home');
+                localStorage.removeItem('all_days_calculation');
+                window.location.reload();  
+            })
+
+            if(localStorage.getItem('all_days_calculation')){
+
+                $('#remove_days_data').click(function(){
+                    localStorage.removeItem('all_days_calculation');
+                    window.location.reload();
+                })
+            }else{
+                $('#remove_days_data').hide();
+            }
+
+            $('#update').click(function(){
+                localStorage.setItem('ip_address_home', $('#update_ip').val());
+                window.location.reload();
+            })
 
 
             const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -48,10 +89,13 @@
                 url: "https://api.ipify.org/?format=json",
                 method: "GET",
                 success: function(response){
-                    if(response.ip == ip_address_office){
-                        dayDetailsObject.type = 'WFO';
-                    }else{
+
+                    $('#showipmsg').append('<br> Ip set: (' + ip_address_home + ') Current Ip: ('+ response.ip + ')');
+
+                    if(response.ip == ip_address_home){
                         dayDetailsObject.type = 'WFH';
+                    }else{
+                        dayDetailsObject.type = 'WFO';
                     }
                     
                     if(localStorage.getItem('all_days_calculation')){
@@ -76,9 +120,12 @@
             console.log(JSON.parse(localStorage.getItem('all_days_calculation')));
         }
         else{
+            $('#remove_days_data').hide();
+            $('#show_update_ip').hide();
+            $('#show_update').hide();
             $('#other_days').html('Your ip is not set yet!');
             $('#submit').click(function(){
-                localStorage.setItem('ip_address_office', $('#ip').val());
+                localStorage.setItem('ip_address_home', $('#ip').val());
                 window.location.reload();
             })
         }
