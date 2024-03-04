@@ -18,6 +18,13 @@
         <br>
         <input type="text" placeholder="add or update ips" id="add_update_ip">
         <button id="update_ip">Submit</button>
+
+        <br><br>
+
+        <select id="remove_single_ip">
+            <option selected disabled>Choose a IP to remove</option>
+        </select>
+        <button id="remove_single_ip_btn">Remove</button>
     </div>
     <hr>
 
@@ -48,18 +55,21 @@
 
 
             $('#update_ip').click(function(){
-                if(localStorage.getItem('office_ips')){
-                    office_ips = JSON.parse(localStorage.getItem('office_ips'));
-                    if(office_ips.includes($('#add_update_ip').val()))
-                        alert("Ip already added");
-                    else
-                        office_ips.push($('#add_update_ip').val());
+                if($('#add_update_ip').val() == ''){
+                    alert("Please enter a ip first!");
                 }else{
-                    office_ips.push($('#add_update_ip').val());
+                    if(localStorage.getItem('office_ips')){
+                        office_ips = JSON.parse(localStorage.getItem('office_ips'));
+                        if(office_ips.includes($('#add_update_ip').val()))
+                            alert("Ip already added");
+                        else
+                            office_ips.push($('#add_update_ip').val());
+                    }else{
+                        office_ips.push($('#add_update_ip').val());
+                    }
+                    localStorage.setItem('office_ips',JSON.stringify(office_ips));
+                    window.location.reload();
                 }
-
-                localStorage.setItem('office_ips',JSON.stringify(office_ips));
-                window.location.reload();
             })
 
 
@@ -76,6 +86,25 @@
                 $('#removeIps').click(function(){
                     localStorage.removeItem('office_ips');
                     window.location.reload();
+                })
+
+                office_ips.forEach(element => {
+                    $('#remove_single_ip').append("<option value='"+ element +"'>"+ element +"</option>")
+                })
+
+                $("#remove_single_ip_btn").click(function(){
+                    if($('#remove_single_ip').val() == null){
+                        alert("Please choose a ip first!");
+                    }else{
+                        if(office_ips.length == 1){
+                            localStorage.removeItem('office_ips')
+                        }else{
+                            let ip_index = office_ips.indexOf($('#remove_single_ip').val())
+                            office_ips.splice(ip_index);
+                            localStorage.setItem('office_ips',JSON.stringify(office_ips))
+                        }
+                        window.location.reload();
+                    }
                 })
 
 
