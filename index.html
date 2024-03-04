@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WFO Days - v2</title>
+</head>
+<body>
+
+    <hr>
+    <p id="ipMessage"></p>
+    <button id="removeIps" style="display: none;">Remove Ips</button>
+    <hr>
+
+    <hr>
+    <button id="showUpdate">Update Ips</button>
+    <div id="update" style="display: none;">
+        <br>
+        <input type="text" placeholder="add or update ips" id="add_update_ip">
+        <button id="update_ip">Submit</button>
+    </div>
+    <hr>
+
+    <div id="days_div" style="display: none;">
+        <hr>
+        <h5>Days calculation</h5>
+        <button id="remove_all_days">Remove all days</button>
+        <div id="days_data">
+
+        </div>
+        <hr>
+    </div>
+    
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
+    <script>
+        $(document).ready(function(){
+            
+            var office_ips = [];
+            var office_data = [];
+            
+            
+
+            $('#showUpdate').click(function(){
+                $('#update').toggle();
+            })
+
+
+            $('#update_ip').click(function(){
+                if(localStorage.getItem('office_ips')){
+                    office_ips = JSON.parse(localStorage.getItem('office_ips'));
+                    if(office_ips.includes($('#add_update_ip').val()))
+                        alert("Ip already added");
+                    else
+                        office_ips.push($('#add_update_ip').val());
+                }else{
+                    office_ips.push($('#add_update_ip').val());
+                }
+
+                localStorage.setItem('office_ips',JSON.stringify(office_ips));
+                window.location.reload();
+            })
+
+
+
+            if(localStorage.getItem('office_ips')){
+
+                $('#ipMessage').html('');
+                $('#ipMessage').append("Office ips set: " + localStorage.getItem('office_ips'));
+
+                office_ips = JSON.parse(localStorage.getItem('office_ips'));
+                
+
+                $('#removeIps').show();
+                $('#removeIps').click(function(){
+                    localStorage.removeItem('office_ips');
+                    window.location.reload();
+                })
+
+
+                const date = new Date();
+                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+                const today = date.toLocaleDateString();
+
+                $.ajax({
+                    url: "https://api.ipify.org/?format=json",
+                    method: "GET",
+                    success: function(response){
+                        $('#ipMessage').append("<br>Current Ip: " + response.ip);
+
+
+                        var eachDay = {
+                            type : "",
+                            date : today,
+                            logged_at : date.toLocaleTimeString(), 
+                            day : days[date.getDay()]
+                        }
+
+                        if(office_ips.includes(response.ip)){
+                            eachDay.type = "WFO";
+                        }else{
+                            eachDay.type = "Remote/WFH";
+                        }
+
+
+                        if(localStorage.getItem('office_days_data')){
+
+                            let today_already_set = false;
+
+                            $('#days_div').show();
+
+
+                            office_data = JSON.parse(localStorage.getItem('office_days_data'));
+
+                            office_data.forEach(element => {
+                                if(element.date == today){
+                                    today_already_set = true;
+                                }
+                            });
+
+                            if(!today_already_set){
+                                office_data.push(eachDay);
+                                localStorage.setItem('office_days_data', JSON.stringify(office_data));
+                            }
+
+                            office_data.forEach(element => {
+                                $("#days_data").append("<p>"+ element.date + " ("+ element.day +") : " + element.type + " ("+ element.logged_at +") <button class='removeSingleDay' data='" + element.date + "'>Update</button>" +"</p>");
+                            });
+
+                            $('.removeSingleDay').click(function(){
+                                const day_to_remove = $(this).attr('data');
+                                var day_key = -1;
+
+                                office_data.forEach((element,key) => {
+                                    if(element.date == day_to_remove){
+                                        day_key = key;
+                                    }
+                                });
+
+
+                                if(day_key > -1){
+                                    office_data.splice(day_key);
+                                }
+
+                                localStorage.setItem('office_days_data', JSON.stringify(office_data));
+                                window.location.reload();
+                            });
+
+                            $("#remove_all_days").click(function(){
+                                localStorage.removeItem('office_days_data');
+                                window.location.reload();
+                            })
+
+
+                        }else{
+                            $('#days_div').show();
+                            $('#days_div').html("No datas yet! Please <a href='"+ window.location.href +"'>reload</a>");
+
+                            office_data.push(eachDay);
+                            localStorage.setItem('office_days_data', JSON.stringify(office_data));
+                        }
+                    }
+                })
+
+            }else{
+
+                $('#ipMessage').text("No ips added yet, please update the office ips first!");
+                $('#removeIps').hide();
+
+            }
+
+        })
+    </script>
+    
+</body>
+
+</html>
