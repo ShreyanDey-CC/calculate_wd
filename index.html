@@ -99,8 +99,8 @@
                         if(office_ips.length == 1){
                             localStorage.removeItem('office_ips')
                         }else{
-                            let ip_index = office_ips.indexOf($('#remove_single_ip').val())
-                            office_ips.splice(ip_index);
+                            let ip_index_to_remove = office_ips.indexOf($('#remove_single_ip').val())
+                            office_ips.splice(ip_index_to_remove, 1);
                             localStorage.setItem('office_ips',JSON.stringify(office_ips))
                         }
                         window.location.reload();
