@@ -154,7 +154,10 @@
                             }
 
                             office_data.forEach(element => {
-                                $("#days_data").append("<p>"+ element.date + " ("+ element.day +") : " + element.type + " ("+ element.logged_at +") <button class='removeSingleDay' data='" + element.date + "'>Update</button>" +"</p>");
+                                if(element.date == today)
+                                    $("#days_data").append("<p>"+ element.date + " ("+ element.day +") : " + element.type + " ("+ element.logged_at +") <button class='removeSingleDay' data='" + element.date + "'>Update</button>" +"</p>");
+                                else
+                                    $("#days_data").append("<p>"+ element.date + " ("+ element.day +") : " + element.type + " ("+ element.logged_at +")");
                             });
 
                             $('.removeSingleDay').click(function(){
