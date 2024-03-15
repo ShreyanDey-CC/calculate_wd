@@ -30,7 +30,7 @@
 
     <div id="days_div" style="display: none;">
         <hr>
-        <h5>Days calculation</h5>
+        <h4>Days calculation <span id="total_wfos"></span></h4>
         <button id="remove_all_days">Remove all days</button>
         <div id="days_data">
 
@@ -46,6 +46,7 @@
             
             var office_ips = [];
             var office_data = [];
+            var total_wfos = 0;
             
             
 
@@ -154,11 +155,17 @@
                             }
 
                             office_data.forEach(element => {
+
+                                if(element.type == 'WFO')
+                                    total_wfos += 1;
+
                                 if(element.date == today)
                                     $("#days_data").append("<p>"+ element.date + " ("+ element.day +") : " + element.type + " ("+ element.logged_at +") <button class='removeSingleDay' data='" + element.date + "'>Update</button>" +"</p>");
                                 else
                                     $("#days_data").append("<p>"+ element.date + " ("+ element.day +") : " + element.type + " ("+ element.logged_at +")");
                             });
+
+                            $('#total_wfos').html('('+ total_wfos +')');
 
                             $('.removeSingleDay').click(function(){
                                 const day_to_remove = $(this).attr('data');
